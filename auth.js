@@ -4,7 +4,6 @@
 const SUPABASE_URL = 'https://tgeuouzusahpwgjfciko.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXVvdXp1c2FocHdnamZjaWtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzk2NjgsImV4cCI6MjEwMDc1NTY2OH0.dDMkWqsb1t5uYg7z5vLFtXdS3gsLTYbh4r4m_1JBq-o';
 
-// ✅ CREAR CLIENTE CON NOMBRE DIFERENTE PARA EVITAR CONFLICTOS
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ============================================
@@ -13,6 +12,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function registrarUsuario(event) {
     event.preventDefault();
     
+    const nombreArtista = document.getElementById('regNombreArtista').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     const confirmPassword = document.getElementById('regConfirmPassword').value;
@@ -20,7 +20,12 @@ async function registrarUsuario(event) {
     
     const messageDiv = document.getElementById('registroMessage');
     
-    // VALIDACIONES
+    // Validaciones
+    if (!nombreArtista) {
+        messageDiv.innerHTML = '<span style="color: #d32f2f;">❌ El nombre del artista es obligatorio</span>';
+        return;
+    }
+    
     if (password !== confirmPassword) {
         messageDiv.innerHTML = '<span style="color: #d32f2f;">❌ Las contraseñas no coinciden</span>';
         return;
@@ -37,7 +42,7 @@ async function registrarUsuario(event) {
     }
     
     try {
-        // VERIFICAR CÓDIGO EN SUPABASE
+        // Verificar código en Supabase
         const { data: codigoData, error: codigoError } = await supabaseClient
             .from('codigos_confirmacion')
             .select('*')
@@ -50,13 +55,13 @@ async function registrarUsuario(event) {
             return;
         }
         
-        // REGISTRAR USUARIO EN AUTH
+        // Registrar usuario en Auth
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
                 data: {
-                    nombre_artista: codigoData.nombre_artista || 'Artista'
+                    nombre_artista: nombreArtista
                 }
             }
         });
@@ -66,12 +71,13 @@ async function registrarUsuario(event) {
             return;
         }
         
-        // MARCAR CÓDIGO COMO USADO
+        // Marcar código como usado y guardar nombre
         const { error: updateError } = await supabaseClient
             .from('codigos_confirmacion')
             .update({ 
                 usado: true, 
                 usuario_id: authData.user.id,
+                nombre_artista: nombreArtista,
                 fecha_uso: new Date().toISOString()
             })
             .eq('codigo', codigoConfirmacion);
@@ -80,7 +86,7 @@ async function registrarUsuario(event) {
             console.error('Error al actualizar código:', updateError);
         }
         
-        // ÉXITO
+        // Éxito
         messageDiv.innerHTML = `
             <span style="color: #2e7d32;">✅ Registro exitoso! Redirigiendo al login...</span>
         `;
@@ -116,10 +122,11 @@ async function login(event) {
             return;
         }
         
-        // GUARDAR SESIÓN
+        // Guardar sesión
         localStorage.setItem('userSession', JSON.stringify({
             user: data.user,
-            email: data.user.email
+            email: data.user.email,
+            nombre_artista: data.user.user_metadata?.nombre_artista || 'Artista'
         }));
         
         messageDiv.innerHTML = '<span style="color: #2e7d32;">✅ Login exitoso! Redirigiendo...</span>';
@@ -135,11 +142,12 @@ async function login(event) {
 }
 
 // ============================================
-// 3. VERIFICAR SESIÓN ACTIVA
+// 3. VERIFICAR SESIÓN (BLOQUEA ACCESO)
 // ============================================
 async function verificarSesion() {
     const session = localStorage.getItem('userSession');
     
+    // Si no hay sesión en localStorage, redirigir al login
     if (!session) {
         window.location.href = 'login.html';
         return false;
@@ -158,6 +166,7 @@ async function verificarSesion() {
         
     } catch (error) {
         console.error('Error verificando sesión:', error);
+        window.location.href = 'login.html';
         return false;
     }
 }
@@ -175,41 +184,61 @@ async function cerrarSesion() {
 // 5. PROTEGER PÁGINA PRINCIPAL
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+    // Detectar si estamos en index.html (página principal)
+    const esIndex = window.location.pathname.endsWith('index.html') || 
+                    window.location.pathname === '/' || 
+                    window.location.pathname === '';
+    
+    if (esIndex) {
+        // Verificar sesión y bloquear si no existe
         const sesionValida = await verificarSesion();
         
-        if (sesionValida) {
-            const session = JSON.parse(localStorage.getItem('userSession'));
-            if (session && session.email) {
-                const userInfo = document.createElement('div');
-                userInfo.style.cssText = `
-                    text-align: right;
-                    font-size: 12px;
-                    color: #7a5a4a;
-                    margin-bottom: 10px;
-                    padding: 8px 15px;
-                    background: #f5f0eb;
-                    border-radius: 8px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                `;
-                userInfo.innerHTML = `
-                    <span>👤 ${session.email}</span>
-                    <button onclick="cerrarSesion()" style="
-                        background: #d32f2f;
-                        color: white;
-                        border: none;
-                        padding: 4px 12px;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 11px;
-                    ">Cerrar Sesión</button>
-                `;
-                
-                const container = document.querySelector('.container');
-                container.insertBefore(userInfo, container.firstChild);
-            }
+        if (!sesionValida) {
+            // Ya redirige a login desde verificarSesion()
+            return;
+        }
+        
+        // Si llegamos aquí, hay sesión válida
+        const session = JSON.parse(localStorage.getItem('userSession'));
+        if (session && session.email) {
+            mostrarInfoUsuario(session);
         }
     }
 });
+
+// ============================================
+// 6. MOSTRAR INFO DEL USUARIO
+// ============================================
+function mostrarInfoUsuario(session) {
+    const userInfo = document.createElement('div');
+    userInfo.style.cssText = `
+        text-align: right;
+        font-size: 12px;
+        color: #7a5a4a;
+        margin-bottom: 10px;
+        padding: 8px 15px;
+        background: #f5f0eb;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    `;
+    
+    const nombreMostrar = session.nombre_artista || session.email;
+    
+    userInfo.innerHTML = `
+        <span>🎨 ${nombreMostrar}</span>
+        <button onclick="cerrarSesion()" style="
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        ">Cerrar Sesión</button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(userInfo, container.firstChild);
+}
