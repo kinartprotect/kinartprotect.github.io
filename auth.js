@@ -181,13 +181,15 @@ async function cerrarSesion() {
 }
 
 // ============================================
-// 5. PROTEGER PÁGINA PRINCIPAL
+// 5. PROTEGER PÁGINA PRINCIPAL (ACTUALIZADO)
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
     // Detectar si estamos en index.html (página principal)
+    // Ahora también detectamos '/index' (sin extensión)
     const esIndex = window.location.pathname.endsWith('index.html') || 
                     window.location.pathname === '/' || 
-                    window.location.pathname === '';
+                    window.location.pathname === '' ||
+                    window.location.pathname === '/index'; // <--- NUEVA LÍNEA
     
     if (esIndex) {
         // Verificar sesión y bloquear si no existe
