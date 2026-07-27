@@ -181,17 +181,21 @@ async function cerrarSesion() {
 }
 
 // ============================================
-// 5. PROTEGER PÁGINA PRINCIPAL (ACTUALIZADO)
+// 5. PROTEGER PÁGINA PRINCIPAL (VERSIÓN ROBUSTA)
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
-    // Detectar si estamos en index.html (página principal)
-    // Ahora también detectamos '/index' (sin extensión)
-    const esIndex = window.location.pathname.endsWith('index.html') || 
-                    window.location.pathname === '/' || 
-                    window.location.pathname === '' ||
-                    window.location.pathname === '/index'; // <--- NUEVA LÍNEA
+    // Método 1: Detectar por el título de la página
+    const esPaginaPrincipal = document.title === 'KinArtProtect - Generador QR para Artistas';
     
-    if (esIndex) {
+    // Método 2: Detectar por la URL (como respaldo)
+    const esIndexPorURL = window.location.pathname.endsWith('index.html') || 
+                          window.location.pathname === '/' || 
+                          window.location.pathname === '' ||
+                          window.location.pathname === '/index' ||
+                          window.location.pathname.includes('index');
+    
+    // Si es la página principal por cualquiera de los dos métodos
+    if (esPaginaPrincipal || esIndexPorURL) {
         // Verificar sesión y bloquear si no existe
         const sesionValida = await verificarSesion();
         
