@@ -14,6 +14,13 @@
     <p class="subtitle">Crea tu cuenta para certificar obras</p>
     
     <form id="registroForm" onsubmit="registrarUsuario(event)">
+        <!-- NUEVO CAMPO: Nombre del Artista -->
+        <div class="form-group">
+            <label>🎨 Nombre del Artista</label>
+            <input type="text" id="regNombreArtista" placeholder="Ej: María González" required>
+            <small style="color: #7a5a4a; font-size: 11px;">Este nombre aparecerá en tus certificaciones</small>
+        </div>
+        
         <div class="form-group">
             <label>📧 Correo Electrónico</label>
             <input type="email" id="regEmail" placeholder="artista@email.com" required>
