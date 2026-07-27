@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinArtProtect - Generador QR para Artistas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="badge">✦ CERTIFICACIÓN KINARTPROTECT</div>
+    <h1>Generador QR para Obras</h1>
+    <p class="subtitle">Datos de autenticidad para tu creación</p>
+    
+    <div class="form-group">
+        <label>👤 Nombre del Artista</label>
+        <input type="text" id="artista" placeholder="Ej: María González" value="María González">
+    </div>
+    
+    <div class="form-group">
+        <label>📅 Fecha de Creación</label>
+        <input type="date" id="fecha" value="2026-07-27">
+    </div>
+    
+    <div class="form-group">
+        <label>📧 Contacto del Artista</label>
+        <input type="text" id="contacto" placeholder="Email o web" value="maria@artista.com">
+    </div>
+    
+    <div class="form-group">
+        <label>👥 Nombre del Cliente</label>
+        <input type="text" id="cliente" placeholder="Ej: Juan Pérez" value="Juan Pérez">
+    </div>
+    
+    <div class="form-group">
+        <label>⏱️ Tiempo de Creación</label>
+        <input type="text" id="tiempo" placeholder="Ej: 3 semanas, 20 horas" value="3 semanas">
+    </div>
+    
+    <button class="btn-generate" onclick="generarQR()">🎨 Generar QR</button>
+    
+    <div class="qr-container" id="qrContainer">
+        <div id="qrcode"></div>
+        
+        <div class="qr-info">
+            <strong>Certificación:</strong> KinArtProtect<br>
+            <span id="infoArtista"></span>
+        </div>
+        
+        <button class="btn-download" onclick="descargarQR()">⬇️ Descargar QR</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

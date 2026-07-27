@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container" style="max-width: 500px;">
+    <h2>🔍 Test de conexión a Supabase</h2>
+    <div id="resultado" style="margin-top: 20px;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://tgeuouzusahpwgjfciko.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXVvdXp1c2FocHdnamZjaWtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNzk2NjgsImV4cCI6MjEwMDc1NTY2OH0.dDMkWqsb1t5uYg7z5vLFtXdS3gsLTYbh4r4m_1JBq-o';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function testConexion() {
+        const resultado = document.getElementById('resultado');
+        resultado.innerHTML = '⏳ Probando conexión...';
+        
+        try {
+            const { data, error } = await supabase
+                .from('codigos_confirmacion')
+                .select('*');
+            
+            if (error) {
+                resultado.innerHTML = `
+                    <div style="color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px;">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+                console.error('Error:', error);
+                return;
+            }
+            
+            if (data && data.length > 0) {
+                resultado.innerHTML = `
+                    <div style="color: #2e7d32; background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                        ✅ Conexión exitosa!<br>
+                        📋 Códigos disponibles: ${data.length}
+                        <pre style="background: #f5f0eb; padding: 10px; margin-top: 10px; border-radius: 4px;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                resultado.innerHTML = `
+                    <div style="color: #f57c00; background: #fff3e0; padding: 15px; border-radius: 8px;">
+                        ✅ Conexión exitosa pero no hay códigos en la tabla.
+                    </div>
+                `;
+            }
+        } catch (error) {
+            resultado.innerHTML = `
+                <div style="color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px;">
+                    ❌ Error: ${error.message}
+                </div>
+            `;
+        }
+    }
+
+    testConexion();
+</script>
+
+</body>
+</html>

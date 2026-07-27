@@ -1,0 +1,154 @@
+/* ===== RESET Y BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', serif;
+    background: #f5f0eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.container {
+    background: white;
+    max-width: 600px;
+    width: 100%;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* ===== TÍTULOS ===== */
+h1 {
+    color: #2c1810;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #7a5a4a;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.badge {
+    display: inline-block;
+    background: #2c1810;
+    color: #f5d9c6;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+/* ===== FORMULARIO ===== */
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    color: #3d2b1f;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0d6cf;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+    background: #faf8f6;
+}
+
+input:focus {
+    outline: none;
+    border-color: #8b6b5a;
+    background: white;
+}
+
+/* ===== BOTONES ===== */
+.btn-generate {
+    width: 100%;
+    padding: 14px;
+    background: #2c1810;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.btn-generate:hover {
+    background: #4a2f24;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(44,24,16,0.3);
+}
+
+.btn-download {
+    margin-top: 15px;
+    padding: 10px 25px;
+    background: #8b6b5a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.btn-download:hover {
+    background: #6d5244;
+}
+
+/* ===== QR ===== */
+.qr-container {
+    display: none;
+    margin-top: 30px;
+    padding: 25px;
+    background: #faf8f6;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px dashed #d4c5ba;
+}
+
+.qr-container.active {
+    display: block;
+}
+
+#qrcode {
+    display: inline-block;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.qr-info {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #7a5a4a;
+    background: #f0e8e2;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.qr-info strong {
+    color: #2c1810;
+}
