@@ -6,6 +6,15 @@
     <title>KinArtProtect - Certificación para Artistas</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* ===== FORZAR SCROLL ===== */
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 120vh; /* ← Fuerza scroll */
+            background: #f5f0eb;
+            overflow-y: auto;
+        }
+
         .hero {
             text-align: center;
             padding: 40px 20px;
@@ -109,6 +118,51 @@
             letter-spacing: 1px;
             margin-bottom: 15px;
         }
+        .info-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid #e0d6cf;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+        .info-box h3 {
+            color: #2c1810;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+        .info-box p {
+            color: #7a5a4a;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin: 0;
+        }
+        .info-box ol {
+            color: #7a5a4a;
+            font-size: 1rem;
+            line-height: 2.2;
+            padding-left: 25px;
+            margin: 0;
+        }
+        .scroll-indicator {
+            text-align: center;
+            margin: 10px 0 20px 0;
+            color: #7a5a4a;
+            font-size: 14px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        /* ===== SECCIÓN DE RECUADROS CON SCROLL ===== */
+        .seccion-recursos {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px 100px 20px; /* ← Padding inferior grande */
+        }
         @media (max-width: 480px) {
             .hero h1 {
                 font-size: 2rem;
@@ -120,6 +174,9 @@
             .btn-primary, .btn-secondary {
                 width: 100%;
                 text-align: center;
+            }
+            .info-box {
+                padding: 20px;
             }
         }
     </style>
@@ -169,6 +226,50 @@
     <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #7a5a4a;">
         <p>¿Ya tienes cuenta? <a href="login.html" style="color: #2c1810; font-weight: bold;">Inicia sesión</a></p>
     </div>
+</div>
+
+<!-- ===== INDICADOR DE SCROLL ===== -->
+<div class="scroll-indicator">
+    ↓ Desplázate para más información ↓
+</div>
+
+<!-- ===== RECUADROS GRANDES SEPARADOS ===== -->
+<div class="seccion-recursos">
+
+    <!-- RECUADRO 1: ¿Quiénes somos? -->
+    <div class="info-box">
+        <h3>👥 ¿Quiénes somos?</h3>
+        <p>
+            KinArtProtect es una plataforma diseñada para <strong>artistas y creadores</strong> que desean proteger y certificar sus obras de arte. 
+            Creemos en la importancia de dar <strong>valor y autenticidad</strong> a cada creación, conectando al artista con su obra y su público.
+        </p>
+    </div>
+
+    <!-- RECUADRO 2: ¿Qué hacemos? -->
+    <div class="info-box">
+        <h3>⚙️ ¿Qué hacemos?</h3>
+        <p>
+            Generamos <strong>códigos QR únicos</strong> que contienen toda la información de tu obra: 
+            nombre del artista, fecha de creación, cliente, tiempo de producción y contacto. 
+            Cada QR es un <strong>certificado digital</strong> que avala la autenticidad de tu trabajo.
+        </p>
+    </div>
+
+    <!-- RECUADRO 3: ¿Cómo usar el generador? -->
+    <div class="info-box">
+        <h3>📋 ¿Cómo usar el generador?</h3>
+        <ol>
+            <li><strong>Regístrate</strong> con tu correo y un código de confirmación.</li>
+            <li><strong>Inicia sesión</strong> en tu cuenta de KinArtProtect.</li>
+            <li><strong>Completa los datos</strong> de tu obra (artista, fecha, cliente, tiempo).</li>
+            <li><strong>Genera el QR</strong> y descárgalo para imprimirlo o compartirlo.</li>
+            <li><strong>¡Listo!</strong> Tu obra ya tiene un certificado digital único.</li>
+        </ol>
+    </div>
+
+    <!-- ===== ESPACIADOR PARA FORZAR SCROLL ===== -->
+    <div style="height: 150px;"></div>
+
 </div>
 
 <script>
