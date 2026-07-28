@@ -10,7 +10,7 @@
         html, body {
             margin: 0;
             padding: 0;
-            min-height: 120vh; /* ← Fuerza scroll */
+            min-height: 120vh;
             background: #f5f0eb;
             overflow-y: auto;
         }
@@ -157,11 +157,40 @@
             40% { transform: translateY(-10px); }
             60% { transform: translateY(-5px); }
         }
-        /* ===== SECCIÓN DE RECUADROS CON SCROLL ===== */
         .seccion-recursos {
             max-width: 800px;
             margin: 0 auto;
-            padding: 0 20px 100px 20px; /* ← Padding inferior grande */
+            padding: 0 20px 100px 20px;
+        }
+        .social-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1rem;
+            color: white;
+        }
+        .social-btn:hover {
+            transform: scale(1.05);
+        }
+        .social-btn.facebook {
+            background: #1877f2;
+        }
+        .social-btn.kofi {
+            background: #13c3f3;
+        }
+        .social-btn .icon {
+            font-size: 1.5rem;
         }
         @media (max-width: 480px) {
             .hero h1 {
@@ -177,6 +206,14 @@
             }
             .info-box {
                 padding: 20px;
+            }
+            .social-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .social-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -250,9 +287,9 @@
         <h3>⚙️ ¿Qué hacemos?</h3>
         <p>
             Generamos <strong>códigos QR únicos</strong> que contienen toda la información de tu obra: 
-        nombre del artista, fecha de creación, cliente, tiempo de producción y contacto. 
-        Cada QR es un <strong>certificado digital</strong> que avala la autenticidad de tu trabajo,
-        <strong>y al agregar el código QR a tu obra permites que sea más difícil alimentar a la IA con esta</strong>.
+            nombre del artista, fecha de creación, cliente, tiempo de producción y contacto. 
+            Cada QR es un <strong>certificado digital</strong> que avala la autenticidad de tu trabajo,
+            <strong>y al agregar el código QR a tu obra permites que sea más difícil alimentar a la IA con esta</strong>.
         </p>
     </div>
 
@@ -266,6 +303,27 @@
             <li><strong>Genera el QR</strong> y descárgalo para imprimirlo o compartirlo.</li>
             <li><strong>¡Listo!</strong> Tu obra ya tiene un certificado digital único.</li>
         </ol>
+    </div>
+
+    <!-- ===== RECUADRO 4: REDES SOCIALES ===== -->
+    <div class="info-box" style="text-align: center;">
+        <h3>🌐 Síguenos en redes sociales</h3>
+        <p style="margin-bottom: 20px;">
+            Conéctate con nosotros y mantente al día de nuestras novedades.
+        </p>
+        <div class="social-buttons">
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/kinartprotect/" target="_blank" class="social-btn facebook">
+                <span class="icon">📘</span> Facebook
+            </a>
+            <!-- Ko-fi -->
+            <a href="https://ko-fi.com" target="_blank" class="social-btn kofi">
+                <span class="icon">☕</span> Ko-fi
+            </a>
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9rem; color: #7a5a4a;">
+            ¡Apóyanos y comparte tu experiencia!
+        </p>
     </div>
 
     <!-- ===== ESPACIADOR PARA FORZAR SCROLL ===== -->
@@ -293,7 +351,7 @@
         }
     });
 
-    // Función para cerrar sesión (si está definida en auth.js, se usará la de allí)
+    // Función para cerrar sesión
     function cerrarSesion() {
         if (typeof supabaseClient !== 'undefined') {
             supabaseClient.auth.signOut();
