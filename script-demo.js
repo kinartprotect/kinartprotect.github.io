@@ -9,9 +9,9 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ============================================
 // VARIABLES GLOBALES
 // ============================================
-let usosDisponibles = 0;
 let deviceHash = '';
 let limitePorDefecto = 5;
+let usuarioExiste = false;
 
 // ============================================
 // 1. GENERAR HUELLA DE DISPOSITIVO
@@ -39,17 +39,19 @@ async function generarHuellaDispositivo() {
 }
 
 // ============================================
-// 2. OBTENER ESTADO DEL USUARIO (SIN MODIFICAR)
+// 2. OBTENER ESTADO DEL USUARIO (SOLO LECTURA)
 // ============================================
 async function obtenerEstadoUsuario() {
     try {
-        deviceHash = await generarHuellaDispositivo();
+        if (!deviceHash) {
+            deviceHash = await generarHuellaDispositivo();
+        }
         console.log('🔑 Device Hash:', deviceHash);
         
-        // Consultar estado actual en Supabase
+        // Consultar estado actual en Supabase (SOLO LECTURA)
         const { data, error } = await supabaseClient
             .from('usos_temporales')
-            .select('contador, limite_usos, fecha_expiracion, fecha_inicio')
+            .select('contador, limite_usos, fecha_expiracion')
             .eq('device_hash', deviceHash)
             .order('fecha_inicio', { ascending: false })
             .limit(1);
@@ -67,6 +69,7 @@ async function obtenerEstadoUsuario() {
         
         // Si no hay registros, es nuevo usuario
         if (!data || data.length === 0) {
+            usuarioExiste = false;
             return { 
                 existe: false, 
                 contador: 0, 
@@ -76,19 +79,19 @@ async function obtenerEstadoUsuario() {
             };
         }
         
-        // Verificar si expiró
+        usuarioExiste = true;
         const registro = data[0];
         const fechaExpiracion = new Date(registro.fecha_expiracion);
         const ahora = new Date();
         
+        // Verificar si expiró
         if (ahora > fechaExpiracion) {
-            // Expiró, mostrar como nuevo (pero no reiniciar automáticamente)
             return { 
                 existe: true, 
                 contador: registro.contador, 
                 limite: registro.limite_usos || limitePorDefecto,
                 usosRestantes: 0,
-                mensaje: 'Tu prueba ha expirado. ¡Regístrate para continuar!',
+                mensaje: '⏰ Tu prueba ha expirado. ¡Regístrate para continuar!',
                 expirado: true
             };
         }
@@ -100,7 +103,7 @@ async function obtenerEstadoUsuario() {
         
         let mensaje = `Te quedan ${restantes} usos gratuitos`;
         if (restantes === 0) {
-            mensaje = 'Has agotado tus usos gratuitos. ¡Regístrate para continuar!';
+            mensaje = '🚫 Has agotado tus usos gratuitos. ¡Regístrate para continuar!';
         } else if (restantes === 1) {
             mensaje = '⚠️ ¡Último uso gratuito!';
         }
@@ -130,19 +133,21 @@ async function obtenerEstadoUsuario() {
 // ============================================
 async function registrarUso() {
     try {
+        // Primero, obtener el estado actual (sin modificar)
         const estado = await obtenerEstadoUsuario();
         
         // Si ya no tiene usos disponibles o expiró
         if (estado.usosRestantes <= 0 || estado.expirado) {
             return { 
                 permitido: false, 
-                usosRestantes: 0, 
-                mensaje: estado.expirado ? 'Tu prueba ha expirado. ¡Regístrate para continuar!' : 'Has agotado tus usos gratuitos.' 
+                usosRestantes: estado.usosRestantes, 
+                mensaje: estado.expirado ? '⏰ Tu prueba ha expirado. ¡Regístrate para continuar!' : '🚫 Has agotado tus usos gratuitos.' 
             };
         }
         
-        // Si no existe, crear registro con contador = 1
-        if (!estado.existe) {
+        // Si es nuevo usuario, crear el primer registro
+        if (!usuarioExiste) {
+            // Insertar con contador = 1
             const { error: insertError } = await supabaseClient
                 .from('usos_temporales')
                 .insert({
@@ -158,15 +163,16 @@ async function registrarUso() {
                 return { permitido: false, mensaje: 'Error al registrar el uso' };
             }
             
+            usuarioExiste = true;
             const restantes = limitePorDefecto - 1;
             return { 
                 permitido: true, 
                 usosRestantes: restantes, 
-                mensaje: `Te quedan ${restantes} usos gratuitos` 
+                mensaje: restantes > 0 ? `Te quedan ${restantes} usos gratuitos` : '⚠️ ¡Último uso gratuito!' 
             };
         }
         
-        // Si existe, incrementar contador
+        // Si ya existe, incrementar el contador
         const nuevoContador = estado.contador + 1;
         const { error: updateError } = await supabaseClient
             .from('usos_temporales')
@@ -182,12 +188,7 @@ async function registrarUso() {
         }
         
         const restantes = estado.limite - nuevoContador;
-        let mensaje = `Te quedan ${restantes} usos gratuitos`;
-        if (restantes === 0) {
-            mensaje = 'Has agotado tus usos gratuitos. ¡Regístrate para continuar!';
-        } else if (restantes === 1) {
-            mensaje = '⚠️ ¡Último uso gratuito!';
-        }
+        let mensaje = restantes > 0 ? `Te quedan ${restantes} usos gratuitos` : '⚠️ ¡Último uso gratuito!';
         
         return { 
             permitido: true, 
@@ -210,41 +211,47 @@ function actualizarContador(usosRestantes, mensaje) {
     const btnGenerar = document.getElementById('btnGenerar');
     const mensajeContainer = document.getElementById('mensajeUsoContainer');
     
-    if (usosRestantes !== undefined && usosRestantes !== null) {
+    if (contadorElement) {
         contadorElement.textContent = Math.max(0, usosRestantes);
     }
     
-    if (mensaje) {
+    if (mensajeElement && mensaje) {
         mensajeElement.textContent = mensaje;
         
         // Cambiar color según el mensaje
         if (mensaje.includes('agotado') || mensaje.includes('Error') || mensaje.includes('expirado')) {
             mensajeElement.style.color = '#d32f2f';
-            btnGenerar.disabled = true;
-            btnGenerar.textContent = '🚫 Usos agotados';
+            if (btnGenerar) {
+                btnGenerar.disabled = true;
+                btnGenerar.textContent = '🚫 Usos agotados';
+            }
         } else if (mensaje.includes('Último uso') || mensaje.includes('1 uso')) {
             mensajeElement.style.color = '#e65100';
-            btnGenerar.disabled = false;
-            btnGenerar.textContent = '🎨 Generar QR';
+            if (btnGenerar) {
+                btnGenerar.disabled = false;
+                btnGenerar.textContent = '🎨 Generar QR';
+            }
         } else {
             mensajeElement.style.color = '#2e7d32';
-            btnGenerar.disabled = false;
-            btnGenerar.textContent = '🎨 Generar QR';
+            if (btnGenerar) {
+                btnGenerar.disabled = false;
+                btnGenerar.textContent = '🎨 Generar QR';
+            }
         }
     }
     
     // Mostrar mensaje adicional
-    if (mensajeContainer) {
+    if (mensajeContainer && mensaje) {
         let clase = 'mensaje-uso info';
-        if (mensaje && (mensaje.includes('agotado') || mensaje.includes('expirado'))) {
+        if (mensaje.includes('agotado') || mensaje.includes('expirado')) {
             clase = 'mensaje-uso error';
-        } else if (mensaje && mensaje.includes('Último uso')) {
+        } else if (mensaje.includes('Último uso')) {
             clase = 'mensaje-uso warning';
-        } else if (mensaje && mensaje.includes('Bienvenido')) {
+        } else if (mensaje.includes('Bienvenido')) {
             clase = 'mensaje-uso success';
         }
         
-        mensajeContainer.innerHTML = `<div class="${clase}">${mensaje || ''}</div>`;
+        mensajeContainer.innerHTML = `<div class="${clase}">${mensaje}</div>`;
     }
 }
 
@@ -253,6 +260,8 @@ function actualizarContador(usosRestantes, mensaje) {
 // ============================================
 async function generarQRDemo() {
     const btnGenerar = document.getElementById('btnGenerar');
+    if (!btnGenerar) return;
+    
     btnGenerar.disabled = true;
     btnGenerar.textContent = '⏳ Verificando...';
     
@@ -260,7 +269,7 @@ async function generarQRDemo() {
     const resultado = await registrarUso();
     
     if (!resultado.permitido) {
-        actualizarContador(0, resultado.mensaje);
+        actualizarContador(resultado.usosRestantes || 0, resultado.mensaje);
         btnGenerar.disabled = false;
         btnGenerar.textContent = '🎨 Generar QR';
         return;
@@ -285,30 +294,37 @@ Tiempo de creación: ${tiempo}
 Generado: ${new Date().toLocaleDateString()}`;
     
     const container = document.getElementById('qrContainer');
-    container.classList.add('active');
+    if (container) {
+        container.classList.add('active');
+    }
     
     const qrDiv = document.getElementById('qrcode');
-    qrDiv.innerHTML = '';
+    if (qrDiv) {
+        qrDiv.innerHTML = '';
+        
+        const url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(textoQR)}&color=2c1810&bgcolor=ffffff&margin=20`;
+        
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'QR Code';
+        img.style.width = '250px';
+        img.style.height = '250px';
+        img.id = 'qrImage';
+        img.onerror = function() {
+            alert('Error al generar el QR. Verifica tu conexión a internet.');
+        };
+        qrDiv.appendChild(img);
+    }
     
-    const url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(textoQR)}&color=2c1810&bgcolor=ffffff&margin=20`;
-    
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = 'QR Code';
-    img.style.width = '250px';
-    img.style.height = '250px';
-    img.id = 'qrImage';
-    img.onerror = function() {
-        alert('Error al generar el QR. Verifica tu conexión a internet.');
-    };
-    qrDiv.appendChild(img);
-    
-    document.getElementById('infoArtista').innerHTML = `
-        <strong>Artista:</strong> ${artista} | 
-        <strong>Cliente:</strong> ${cliente} | 
-        <strong>Fecha:</strong> ${fecha} | 
-        <span style="color: #2e7d32;">🎯 Demo</span>
-    `;
+    const infoArtista = document.getElementById('infoArtista');
+    if (infoArtista) {
+        infoArtista.innerHTML = `
+            <strong>Artista:</strong> ${artista} | 
+            <strong>Cliente:</strong> ${cliente} | 
+            <strong>Fecha:</strong> ${fecha} | 
+            <span style="color: #2e7d32;">🎯 Demo</span>
+        `;
+    }
     
     btnGenerar.disabled = false;
     btnGenerar.textContent = '🎨 Generar QR';
@@ -338,7 +354,12 @@ function descargarQRDemo() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎨 KinArtProtect - Demo cargado');
     
+    // Generar device hash al inicio
+    deviceHash = await generarHuellaDispositivo();
+    
     // Solo mostrar el estado, sin modificar nada
     const estado = await obtenerEstadoUsuario();
     actualizarContador(estado.usosRestantes, estado.mensaje);
+    
+    console.log('📊 Estado inicial:', estado);
 });
