@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinArtProtect - Demo Gratuito</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .demo-badge {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border: 1px solid #2e7d32;
+        }
+        .uso-counter {
+            background: #f5f0eb;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid #e0d6cf;
+        }
+        .uso-counter .numero {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c1810;
+        }
+        .uso-counter .label {
+            font-size: 0.9rem;
+            color: #7a5a4a;
+        }
+        .uso-counter .warning {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .uso-counter .success {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .btn-demo {
+            background: #2e7d32;
+            color: white;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-demo:hover {
+            background: #1b5e20;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(46,125,50,0.3);
+        }
+        .btn-demo:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-registro {
+            background: #2c1810;
+            color: white;
+            padding: 14px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .btn-registro:hover {
+            background: #4a2f24;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(44,24,16,0.3);
+        }
+        .mensaje-uso {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .mensaje-uso.info {
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+        .mensaje-uso.warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .mensaje-uso.error {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .mensaje-uso.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .demo-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0d6cf;
+            font-size: 14px;
+            color: #7a5a4a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" style="max-width: 600px;">
+    <div class="badge">✦ KINARTPROTECT</div>
+    <div class="demo-badge">🎯 DEMO GRATUITO</div>
+    
+    <h1>Prueba el Generador QR</h1>
+    <p class="subtitle">Certifica tus obras sin necesidad de registrarte</p>
+    
+    <!-- CONTADOR DE USOS -->
+    <div class="uso-counter" id="usoCounter">
+        <div class="label">🎨 Usos disponibles</div>
+        <div class="numero" id="usosDisponibles">5</div>
+        <div class="label" id="mensajeUso">Tienes 5 usos gratuitos</div>
+    </div>
+    
+    <!-- FORMULARIO -->
+    <div class="form-group">
+        <label>👤 Nombre del Artista</label>
+        <input type="text" id="artista" placeholder="Ej: María González" value="María González">
+    </div>
+    
+    <div class="form-group">
+        <label>📅 Fecha de Creación</label>
+        <input type="date" id="fecha" value="2026-07-27">
+    </div>
+    
+    <div class="form-group">
+        <label>📧 Contacto del Artista</label>
+        <input type="text" id="contacto" placeholder="Email o web" value="maria@artista.com">
+    </div>
+    
+    <div class="form-group">
+        <label>👥 Nombre del Cliente</label>
+        <input type="text" id="cliente" placeholder="Ej: Juan Pérez" value="Juan Pérez">
+    </div>
+    
+    <div class="form-group">
+        <label>⏱️ Tiempo de Creación</label>
+        <input type="text" id="tiempo" placeholder="Ej: 3 semanas, 20 horas" value="3 semanas">
+    </div>
+    
+    <button class="btn-demo" id="btnGenerar" onclick="generarQRDemo()">🎨 Generar QR</button>
+    
+    <div class="qr-container" id="qrContainer">
+        <div id="qrcode"></div>
+        
+        <div class="qr-info">
+            <strong>Certificación:</strong> KinArtProtect (Demo)<br>
+            <span id="infoArtista"></span>
+        </div>
+        
+        <button class="btn-download" onclick="descargarQRDemo()">⬇️ Descargar QR</button>
+    </div>
+    
+    <!-- MENSAJE DE USO -->
+    <div id="mensajeUsoContainer"></div>
+    
+    <!-- FOOTER -->
+    <div class="demo-footer">
+        <p>¿Te gustó la experiencia?</p>
+        <a href="registro.html" class="btn-registro">📝 Regístrate para usos ilimitados</a>
+        <p style="margin-top: 10px; font-size: 12px;">
+            O <a href="login.html" style="color: #2c1810; font-weight: bold;">inicia sesión</a> si ya tienes cuenta
+        </p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script-demo.js"></script>
+
+</body>
+</html>
