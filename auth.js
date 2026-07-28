@@ -132,7 +132,7 @@ async function login(event) {
         messageDiv.innerHTML = '<span style="color: #2e7d32;">✅ Login exitoso! Redirigiendo...</span>';
         
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'service.html';
         }, 1500);
         
     } catch (error) {
@@ -188,11 +188,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     const esPaginaPrincipal = document.title === 'KinArtProtect - Generador QR para Artistas';
     
     // Método 2: Detectar por la URL (como respaldo)
-    const esIndexPorURL = window.location.pathname.endsWith('index.html') || 
+    const esIndexPorURL = window.location.pathname.endsWith('service.html') || 
                           window.location.pathname === '/' || 
                           window.location.pathname === '' ||
-                          window.location.pathname === '/index' ||
-                          window.location.pathname.includes('index');
+                          window.location.pathname === '/service' ||
+                          window.location.pathname.includes('service');
     
     // Si es la página principal por cualquiera de los dos métodos
     if (esPaginaPrincipal || esIndexPorURL) {
