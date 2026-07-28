@@ -181,22 +181,15 @@ async function cerrarSesion() {
 }
 
 // ============================================
-// 5. PROTEGER PÁGINA PRINCIPAL (VERSIÓN ROBUSTA)
+// 5. PROTEGER SOLO service.html (ACTUALIZADO)
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
-    // Método 1: Detectar por el título de la página
-    const esPaginaPrincipal = document.title === 'KinArtProtect - Generador QR para Artistas';
+    // Detectar si estamos en service.html (el generador QR)
+    const esService = window.location.pathname.endsWith('service.html') || 
+                      window.location.pathname === '/service';
     
-    // Método 2: Detectar por la URL (como respaldo)
-    const esIndexPorURL = window.location.pathname.endsWith('service.html') || 
-                          window.location.pathname === '/' || 
-                          window.location.pathname === '' ||
-                          window.location.pathname === '/service' ||
-                          window.location.pathname.includes('service');
-    
-    // Si es la página principal por cualquiera de los dos métodos
-    if (esPaginaPrincipal || esIndexPorURL) {
-        // Verificar sesión y bloquear si no existe
+    // SOLO proteger service.html
+    if (esService) {
         const sesionValida = await verificarSesion();
         
         if (!sesionValida) {
@@ -210,6 +203,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             mostrarInfoUsuario(session);
         }
     }
+    // Si NO es service.html, no hacer nada (dejar pasar)
 });
 
 // ============================================
